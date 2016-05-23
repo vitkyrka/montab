@@ -12,8 +12,12 @@ gi.require_version('Gdk', '3.0')
 gi.require_version('Gtk', '3.0')
 gi.require_version('Keybinder', '3.0')
 
-from gi.repository import GLib, Gdk, Gtk, Keybinder
+from gi.repository import GLib, Gdk, GdkX11, Gtk, Keybinder
 from Xlib import X
+
+# GdkX11 is not an unused import but a workaround for this bug:
+# https://bugzilla.gnome.org/show_bug.cgi?id=673396
+GdkX11
 
 
 class MonTab:
