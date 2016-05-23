@@ -28,4 +28,6 @@ Installation
     sudo apt-get install gir1.2-keybinder-3.0 python-gi python-xlib
     python setup.py install
 
-Run ``montab`` after installation.
+Run ``montab`` after installation.  Note that if you're using XFCE, ``Super +
+Tab`` has a default binding which you'll have to disable in the Window Manager
+settings.
