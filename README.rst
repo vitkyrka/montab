@@ -25,7 +25,7 @@ Installation
 
 ::
 
-    sudo apt-get install python-gi python-xlib
+    sudo apt-get install gir1.2-keybinder-3.0 python-gi python-xlib
     python setup.py install
 
 Run ``montab`` after installation.
