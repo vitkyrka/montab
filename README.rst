@@ -24,6 +24,13 @@ following shortcuts are available:
   If there is no window on the specified monitor, just move the mouse pointer
   to the center of the monitor.
 
+``Super + Ctrl + [qwerty]``
+  Cycle through a window list containing only windows on the specified monitor.
+  When a window is selected, it is raised but not given focus.
+
+``Super + Shift + Ctrl + [qwerty]``
+  Like ``Super + Ctrl + [qwerty]``, but cycle in reverse order.
+
 Installation
 ------------
 

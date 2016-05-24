@@ -99,6 +99,9 @@ class MonTab:
         data = [2, int(time.time()), 0, 0, 0]
         self.set_xproperty(win, '_NET_ACTIVE_WINDOW', data)
 
+    def raise_window(self, win):
+        win.raise_()
+
     def move_mouse(self, x, y):
         self.root.warp_pointer(x, y)
         self.display.flush()
@@ -119,7 +122,8 @@ class MonTab:
 
 
 class Switcher(Gtk.Window):
-    def __init__(self, windows, names, initial, activate):
+    def __init__(self, windows, names, initial, monitor, activate,
+                 nextkey, prevkey):
         Gtk.Window.__init__(self, title='Switcher', decorated=False,
                             modal=True, type_hint=Gdk.WindowTypeHint.DOCK)
 
@@ -127,6 +131,9 @@ class Switcher(Gtk.Window):
 
         grid = Gtk.Grid(margin=10)
         self.add(grid)
+
+        self.nextkey = nextkey
+        self.prevkey = prevkey
 
         self.windows = windows
         self.buttons = []
@@ -162,9 +169,9 @@ class Switcher(Gtk.Window):
 
     def key_press(self, widget, event):
         name = Gdk.keyval_name(event.keyval)
-        if name == 'Tab':
+        if name == 'Tab' or name == self.nextkey:
             self.choose_next(reverse=False)
-        elif name == 'ISO_Left_Tab':
+        elif name == 'ISO_Left_Tab' or name == self.prevkey:
             self.choose_next(reverse=True)
 
     def key_release(self, widget, event):
@@ -187,6 +194,12 @@ class Switcher(Gtk.Window):
     def activate_and_die(self, position=None):
         if position is None:
             position = self.position
+
+        # This is important when we raise a window on the other monitor
+        # (without activating it) so that we ensure that focus falls back to
+        # the window which had it (on this monitor).
+        self.hide()
+
         self.activate(self.windows[position])
         self.destroy()
 
@@ -200,13 +213,14 @@ class Listener:
         self.montab = MonTab()
         self.monkeys = monkeys
         self.super = superkey
+        self.monkeys = monkeys[:self.montab.screen.get_n_monitors()]
+
         Keybinder.init()
         Keybinder.set_use_cooked_accelerators(False)
 
     def install(self):
-        n_monitors = self.montab.screen.get_n_monitors()
-        for i in range(min(len(self.monkeys), n_monitors)):
-            Keybinder.bind(self.super + self.monkeys[i], self.monitor_key, i)
+        for i, key in enumerate(self.monkeys):
+            Keybinder.bind(self.super + key, self.monitor_key, i)
 
         self.bind_tab(True)
 
@@ -214,31 +228,58 @@ class Listener:
         if bind:
             Keybinder.bind(self.super + 'Tab', self.tab_key, False)
             Keybinder.bind(self.super + '<Shift>Tab', self.tab_key, True)
+
+            for i, key in enumerate(self.monkeys):
+                Keybinder.bind(self.super + '<Ctrl>' + key,
+                               self.tab_key, False, i)
+                Keybinder.bind(self.super + '<Ctrl><Shift>' + key,
+                               self.tab_key, False, i)
         else:
             Keybinder.unbind(self.super + 'Tab')
             Keybinder.unbind(self.super + '<Shift>Tab')
+
+            for i, key in enumerate(self.monkeys):
+                Keybinder.unbind(self.super + '<Ctrl>' + key)
+                Keybinder.unbind(self.super + '<Ctrl><Shift>' + key)
 
     def activate_window(self, win):
         if win:
             self.montab.activate_window(win)
         self.bind_tab(True)
 
-    def show_switcher(self, reverse):
-        windows = self.montab.get_windows()
+    def raise_window(self, win):
+        if win:
+            self.montab.raise_window(win)
+        self.bind_tab(True)
+
+    def show_switcher(self, reverse=False, monitor=None):
+        windows = self.montab.get_windows(monitor=monitor)
         if len(windows) < 2:
             return
 
         # If we don't unbind, the window loses focus on further Super-Tabs
         self.bind_tab(False)
 
-        names = dict([(w, self.montab.get_window_name(w)) for w in windows])
-        win = Switcher(windows, names, initial=-1 if reverse else 1,
-                       activate=self.activate_window)
-        win.show_all()
+        if monitor is None:
+            activate = self.activate_window
+            nextkey = None
+            prevkey = None
+        else:
+            activate = self.raise_window
+            nextkey = self.monkeys[monitor]
+            prevkey = self.monkeys[monitor].upper()
 
-    def tab_key(self, keystring, reverse):
+        names = dict([(w, self.montab.get_window_name(w)) for w in windows])
+        initial = -1 if reverse else 1
+
+        switcher = Switcher(windows, names, initial=initial,
+                            monitor=monitor, activate=activate,
+                            nextkey=nextkey, prevkey=prevkey)
+        switcher.show_all()
+
+    def tab_key(self, keystring, reverse, monitor=None):
         # If the unbind is done here, we segfault
-        GLib.idle_add(self.show_switcher, reverse)
+        GLib.idle_add(self.show_switcher, reverse, monitor)
 
     def monitor_key(self, keystring, monitor):
         self.montab.goto_monitor(monitor)
