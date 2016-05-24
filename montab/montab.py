@@ -201,6 +201,7 @@ class Listener:
         self.monkeys = monkeys
         self.super = superkey
         Keybinder.init()
+        Keybinder.set_use_cooked_accelerators(False)
 
     def install(self):
         n_monitors = self.montab.screen.get_n_monitors()
@@ -212,10 +213,10 @@ class Listener:
     def bind_tab(self, bind=True):
         if bind:
             Keybinder.bind(self.super + 'Tab', self.tab_key, False)
-            Keybinder.bind(self.super + 'ISO_Left_Tab', self.tab_key, True)
+            Keybinder.bind(self.super + '<Shift>Tab', self.tab_key, True)
         else:
             Keybinder.unbind(self.super + 'Tab')
-            Keybinder.unbind(self.super + 'ISO_Left_Tab')
+            Keybinder.unbind(self.super + '<Shift>Tab')
 
     def activate_window(self, win):
         if win:
