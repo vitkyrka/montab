@@ -15,6 +15,9 @@ following shortcuts are available:
   Cycle through a window list containing only windows on the same monitor as
   the currently active window.
 
+``Super + Shift + Tab``
+  Like ``Super + Tab``, but cycle in reverse order.
+
 ``Super + [qwerty]``
   Activate the most recent window on the specified monitor (first = ``q``,
   second = ``w``, and so on) and move the mouse pointer to the window's center.

@@ -119,7 +119,7 @@ class MonTab:
 
 
 class Switcher(Gtk.Window):
-    def __init__(self, windows, names, activate):
+    def __init__(self, windows, names, initial, activate):
         Gtk.Window.__init__(self, title='Switcher', decorated=False,
                             modal=True, type_hint=Gdk.WindowTypeHint.DOCK)
 
@@ -130,7 +130,7 @@ class Switcher(Gtk.Window):
 
         self.windows = windows
         self.buttons = []
-        self.position = 1
+        self.position = initial % len(windows)
         self.handlers = []
 
         self.connect('draw', self.on_draw)
@@ -163,19 +163,21 @@ class Switcher(Gtk.Window):
     def key_press(self, widget, event):
         name = Gdk.keyval_name(event.keyval)
         if name == 'Tab':
-            self.choose_next()
+            self.choose_next(reverse=False)
+        elif name == 'ISO_Left_Tab':
+            self.choose_next(reverse=True)
 
     def key_release(self, widget, event):
         name = Gdk.keyval_name(event.keyval)
         if name.startswith('Super'):
             self.activate_and_die()
 
-    def choose_next(self):
+    def choose_next(self, reverse=False):
         button = self.buttons[self.position]
         with button.handler_block(self.handlers[self.position]):
             button.set_active(False)
 
-        self.position += 1
+        self.position += -1 if reverse else 1
         self.position %= len(self.buttons)
 
         button = self.buttons[self.position]
@@ -208,18 +210,19 @@ class Listener:
         self.bind_tab(True)
 
     def bind_tab(self, bind=True):
-        tabkey = self.super + 'Tab'
         if bind:
-            Keybinder.bind(tabkey, self.tab_key)
+            Keybinder.bind(self.super + 'Tab', self.tab_key, False)
+            Keybinder.bind(self.super + 'ISO_Left_Tab', self.tab_key, True)
         else:
-            Keybinder.unbind(tabkey)
+            Keybinder.unbind(self.super + 'Tab')
+            Keybinder.unbind(self.super + 'ISO_Left_Tab')
 
     def activate_window(self, win):
         if win:
             self.montab.activate_window(win)
         self.bind_tab(True)
 
-    def show_switcher(self):
+    def show_switcher(self, reverse):
         windows = self.montab.get_windows()
         if len(windows) < 2:
             return
@@ -228,12 +231,13 @@ class Listener:
         self.bind_tab(False)
 
         names = dict([(w, self.montab.get_window_name(w)) for w in windows])
-        win = Switcher(windows, names, activate=self.activate_window)
+        win = Switcher(windows, names, initial=-1 if reverse else 1,
+                       activate=self.activate_window)
         win.show_all()
 
-    def tab_key(self, keystring):
+    def tab_key(self, keystring, reverse):
         # If the unbind is done here, we segfault
-        GLib.idle_add(self.show_switcher)
+        GLib.idle_add(self.show_switcher, reverse)
 
     def monitor_key(self, keystring, monitor):
         self.montab.goto_monitor(monitor)
