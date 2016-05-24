@@ -5,7 +5,8 @@ Mon-Tab
 
 This provides behaviour similar to Alt-Tab, but for switching between monitors
 or cycling through windows on a specific monitor.  It has only been tested with
-XFCE, but should work with any window manager which supports EWMH.
+XFCE (with focus follows mouse), but should work with any window manager which
+supports EWMH.
 
 The trigger key is currently hard coded to ``Super_L`` / ``Mod4``.  The
 following shortcuts are available:
