@@ -37,6 +37,20 @@ class MonTab:
         wins = []
 
         for w in reversed(clients):
+            try:
+                # If the window disappears, then we get a BadWindow error from
+                # X11.  Unfortunately, if this happens in one of the Gtk
+                # functions, the program terminates with no apparent way of
+                # handling the error.  Right now let's do a check which Xlib
+                # here (where we can handle the error) to reduce the chances of
+                # seeing problems, but the race obviously still exists.
+                self.get_window_name(w)
+            except Xlib.error.BadWindow:
+                # A quick way to trigger this exception is by hitting
+                # Super+Tab, then releasing Tab, and while still holding down
+                # Super, hitting one of the monitor switch keys.
+                continue
+
             if w.get_desktop() != desk:
                 continue
 
