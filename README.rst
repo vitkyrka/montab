@@ -18,18 +18,17 @@ following shortcuts are available:
 ``Super + Shift + Tab``
   Like ``Super + Tab``, but cycle in reverse order.
 
-``Super + [qwerty]``
-  Activate the most recent window on the specified monitor (first = ``q``,
-  second = ``w``, and so on) and move the mouse pointer to the window's center.
-  If there is no window on the specified monitor, just move the mouse pointer
-  to the center of the monitor.
+``Super + [1-9]``
+  Activate the most recent window on the specified monitor and move the mouse
+  pointer to the window's center.  If there is no window on the specified
+  monitor, just move the mouse pointer to the center of the monitor.
 
-``Super + Ctrl + [qwerty]``
+``Super + Ctrl + [1-9]``
   Cycle through a window list containing only windows on the specified monitor.
   When a window is selected, it is raised but not given focus.
 
-``Super + Shift + Ctrl + [qwerty]``
-  Like ``Super + Ctrl + [qwerty]``, but cycle in reverse order.
+``Super + Shift + Ctrl + [1-9]``
+  Like ``Super + Ctrl + [1-9]``, but cycle in reverse order.
 
 Installation
 ------------

@@ -209,11 +209,12 @@ class Switcher(Gtk.Window):
 
 
 class Listener:
-    def __init__(self, superkey='<Super>', monkeys='qwerty'):
+    def __init__(self, superkey='<Super>'):
         self.montab = MonTab()
-        self.monkeys = monkeys
         self.super = superkey
-        self.monkeys = monkeys[:self.montab.screen.get_n_monitors()]
+
+        nmons = self.montab.screen.get_n_monitors()
+        self.monkeys = [chr(ord('1') + n) for n in range(nmons)]
 
         Keybinder.init()
         Keybinder.set_use_cooked_accelerators(False)
