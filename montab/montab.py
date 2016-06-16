@@ -82,7 +82,10 @@ class MonTab:
         self.display.flush()
 
     def get_window_name(self, win):
-        return self.get_xproperty(win, '_NET_WM_NAME')
+        try:
+            return self.get_xproperty(win, '_NET_WM_NAME')
+        except AttributeError:
+            return self.get_xproperty(win, 'WM_NAME')
 
     def get_current_monitor(self):
         win = self.screen.get_active_window()
