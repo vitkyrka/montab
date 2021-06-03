@@ -115,13 +115,13 @@ class MonTab:
         if windows:
             win = windows[0]
             x, y = win.get_origin()[1:]
-            self.move_mouse(x + win.get_width() / 2,
-                            y + win.get_height() / 2)
+            self.move_mouse(x + win.get_width() // 2,
+                            y + win.get_height() // 2)
             self.activate_window(win)
         else:
             geo = self.screen.get_monitor_geometry(monitor)
-            self.move_mouse(geo.x + geo.width / 2,
-                            geo.y + geo.height / 2)
+            self.move_mouse(geo.x + geo.width // 2,
+                            geo.y + geo.height // 2)
 
 
 class Switcher(Gtk.Window):
