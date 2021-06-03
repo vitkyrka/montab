@@ -273,7 +273,7 @@ class Listener:
             nextkey = self.monkeys[monitor]
             prevkey = self.monkeys[monitor].upper()
 
-        names = dict([(w, self.montab.get_window_name(w)) for w in windows])
+        names = dict([(w, self.montab.get_window_name(w).decode('utf-8')) for w in windows])
         initial = -1 if reverse else 1
 
         switcher = Switcher(windows, names, initial=initial,
